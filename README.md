@@ -92,6 +92,8 @@ These presets allow you to connect directly to a service without needing to perf
 A database of identified stations for each service is also included.
 <br>
 <br>
+You can always create your own services if required.
+- - -
 Do you know of a service that isn't in this database?
 <br>
 Please feel free to report it in the "Issues" section, providing as much information as possible (transponder data for Minisatip streams or reference(s) for OpenWebif streams, the satellite hosting the service, PIDs, addresses, and PSN).

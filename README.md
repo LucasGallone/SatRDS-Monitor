@@ -44,14 +44,7 @@ A huge thank you to him for his help and his work, without which creating this s
 Otherwise, simply download the ZIP [by clicking here](https://github.com/LucasGallone/SatRDS-Monitor/archive/refs/heads/main.zip), and extract the content in a folder.
 <br>
 <br>
-3 - Install the required Python dependencies using pip:
-<br>
-`pip install PyQt5 requests Flask`
-<br>
-<br>
-4 - Launch the software:
-<br>
-`python SatRDSMonitor.py`
+3 - Start the Launcher (`SatRDSMonitor-Launcher.bat`) by making sure it is located in the same folder as `SatRDSMonitor.py`.
 ### • For Linux
 <b>IMPORTANT NOTE: As the AAC library used by the software is not compatible with Linux, it is not possible to decode AAC streams with the software. Only dedicated PID data and MP2 streams can be decoded.</b>
 <br>

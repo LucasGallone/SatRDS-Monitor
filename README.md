@@ -5,10 +5,7 @@ SatRDS Monitor is a real-time Python-based monitor and decoder for RDS/UECP data
 It is natively compatible with Windows (and was tested on Windows 11), but also logically with Linux (although not tested ; AAC streams decoding is not supported on this OS).
 <br>
 <br>
-Data can be retrieved via Minisatip and OpenWebif streams (the latter being necessary for Enigma2 receivers when handling specific streams incompatible with Minisatip).
-<br>
-<br>
-RDS/UECP information can be collected either through dedicated data channels (PIDs) or via MP2 and AAC audio streams.
+Data can be retrieved via Minisatip and OpenWebif streams (the latter being necessary for Enigma2 receivers when handling specific streams incompatible with Minisatip). RDS/UECP information can be collected either through dedicated data channels (PIDs) or via MP2 and AAC audio streams.
 <br>
 <br>
 The software interface allows users to create a database of addresses, PSNs, and PIDs, making it easy to identify stations and determine exactly which station a specific data packet belongs to.

@@ -16,7 +16,7 @@ An authentication-protected web interface is also included, allowing remote cont
 <br>
 <img width="900" alt="satrdsmonitor-1" src="https://github.com/user-attachments/assets/0a1a8659-e489-4d91-8dd3-81bd84f5c244" />
 <img width="900" alt="satrdsmonitor-2" src="https://github.com/user-attachments/assets/7a3f9078-37ba-4d08-a276-25bdc78f4422" />
-## Contribution credits
+## Credit for the original work
 SatRDS Monitor is based on [@mrwish7](https://github.com/mrwish7/)'s project, DVB-UECP-Tools. [Click here to find more about it.](https://github.com/mrwish7/DVB-UECP-Tools)
 <br>
 A huge thank you to him for his help and his work, without which creating this software would not have been possible!

@@ -1522,7 +1522,7 @@ HTML_TEMPLATE = """
             <div class="control-group">
                 <label><strong>Status:</strong></label>
                 <span id="active-services-badge" style="background: #9E9E9E; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 15px;">No active monitoring.</span>
-                <label><strong>Remote Control:</strong></label>
+                <label><strong>Service to monitor:</strong></label>
                 <select id="web-service-select"></select>
                 <button class="btn-start" onclick="remoteAction('start')">Start Stream</button>
                 <button class="btn-stop" onclick="remoteAction('stop')">Stop Stream</button>
@@ -1691,8 +1691,8 @@ HTML_TEMPLATE = """
                             <option value="openwebif">OpenWebif</option>
                         </select>
                         <label>OpenWebif Ref:</label><input type="text" id="cfg-s-owref" placeholder="1:0:2:...:0:0:0:" oninput="autoExtractWebRef()">
-                        <label>Source (Mini):</label><input type="number" id="cfg-s-src" min="1" max="256">
-                        <label>Frequency (Mini):</label><input type="text" id="cfg-s-freq">
+                        <label>Source:</label><input type="number" id="cfg-s-src" min="1" max="256">
+                        <label>Frequency:</label><input type="text" id="cfg-s-freq">
                         <label>Polarization:</label>
                         <select id="cfg-s-pol"><option value="h">Horizontal</option><option value="v">Vertical</option></select>
                         <label>Symbol Rate:</label><input type="text" id="cfg-s-sr">
@@ -1703,7 +1703,7 @@ HTML_TEMPLATE = """
                         <label>FEC:</label>
                         <select id="cfg-s-fec"><option value="12">1/2</option><option value="23">2/3</option><option value="34">3/4</option><option value="35">3/5</option><option value="45">4/5</option><option value="56">5/6</option><option value="78">78</option><option value="89">8/9</option><option value="910">9/10</option></select>
                         <label>Minisatip PIDs:</label><input type="text" id="cfg-s-urlpids" placeholder="all">
-                        <label>Decoding PID:</label><input type="text" id="cfg-s-pid">
+                        <label>PID(s) to decode:</label><input type="text" id="cfg-s-pid">
                     </div>
                     <br>
                     <button class="btn-start" onclick="saveWebService()">Save Service</button>
@@ -1712,7 +1712,7 @@ HTML_TEMPLATE = """
 
                 <!-- Database Form for Service -->
                 <div style="flex: 1.5; min-width: 350px;">
-                    <h4>Address / PSN Database for Selected Service</h4>
+                    <h4>Address / PSN / PID Database for Selected Service</h4>
                     <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ccc; background: white; margin-bottom: 10px;">
                         <table style="width: 100%;" id="cfg-db-table">
                             <thead><tr><th style="width: 60px;">Type</th><th style="width: 80px;">Value</th><th>Station Name</th><th>Action</th></tr></thead>

@@ -1437,6 +1437,7 @@ class WebBridge(QObject):
     start_stream = pyqtSignal(str)
     stop_stream = pyqtSignal()
     clear_output = pyqtSignal()
+    restart_app = pyqtSignal()
 
 web_bridge = WebBridge()
 
@@ -1652,7 +1653,10 @@ HTML_TEMPLATE = """
                     <input type="password" id="cfg-web-pass">
                 </div>
                 <br>
-                <button class="btn-start" onclick="saveWebSettings()">Save Main & Display Settings</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-start" onclick="saveWebSettings()">Save Main & Display Settings</button>
+                    <button class="btn-stop" onclick="remoteAction('restart')">Restart Software</button>
+                </div>
             </div>
 
             <!-- Display Settings Card -->
@@ -1937,10 +1941,6 @@ HTML_TEMPLATE = """
                 }
                 if (currentSvc) svcSelect.value = currentSvc;
 
-                if (data.full_settings && data.full_services) {
-                    applyConfigToUI(data.full_settings, data.full_services);
-                }
-
                 var badge = document.getElementById('active-services-badge');
                 if (data.active_services && data.active_services.length > 0) {
                     badge.textContent = "Currently monitored: " + data.active_services.join(', ');
@@ -2148,7 +2148,7 @@ HTML_TEMPLATE = """
                 COLUMNS.forEach(function(col, idx) {
                     if (!hiddenCols.has(idx)) visibleCount++;
                 });
-                rows.push('<tr class="clusterize-no-data"><td colspan="' + visibleCount + '" style="text-align: center; padding: 40px; color: #888; font-style: italic; background-color: #ffffff;">No data</td></tr>');
+                rows.push('<tr class="clusterize-no-data"><td colspan="' + visibleCount + '" style="text-align: center; padding: 40px; color: #888; font-style: italic; background-color: #ffffff;">No data to display for now.</td></tr>');
             }
 
             if (!window.clusterize) {
@@ -2350,6 +2350,19 @@ HTML_TEMPLATE = """
         }
 
         async function saveWebSettings() {
+            var restartNeeded = (
+                webSettingsObj.server_ip !== document.getElementById('cfg-srv-ip').value ||
+                webSettingsObj.server_port !== document.getElementById('cfg-srv-port').value ||
+                webSettingsObj.openwebif_port !== document.getElementById('cfg-ow-port').value ||
+                webSettingsObj.web_port !== document.getElementById('cfg-web-port').value ||
+                webSettingsObj.web_username !== document.getElementById('cfg-web-user').value ||
+                webSettingsObj.web_password !== document.getElementById('cfg-web-pass').value ||
+                webSettingsObj.max_rows !== (parseInt(document.getElementById('cfg-max-rows').value) || 50000) ||
+                webSettingsObj.max_rows_disabled !== document.getElementById('cfg-max-dis').checked ||
+                webSettingsObj.auto_reconnect !== document.getElementById('cfg-auto-reconnect').checked ||
+                webSettingsObj.ow_auto_extract !== document.getElementById('cfg-ow-extract').checked
+            );
+
             webSettingsObj.server_ip = document.getElementById('cfg-srv-ip').value;
             webSettingsObj.server_port = document.getElementById('cfg-srv-port').value;
             webSettingsObj.openwebif_port = document.getElementById('cfg-ow-port').value;
@@ -2372,7 +2385,15 @@ HTML_TEMPLATE = """
             webSettingsObj.hide_station_audio = document.getElementById('cfg-chk-hide-station').checked;
 
             await postFullConfig();
-            alert("Settings saved successfully.");
+
+            if (restartNeeded) {
+                var confirmMsg = "Settings saved successfully." + String.fromCharCode(10) + "Restarting the software is required to apply all changes." + String.fromCharCode(10, 10) + "Do you want to restart it now?";
+                if (confirm(confirmMsg)) {
+                    remoteAction('restart', true);
+                }
+            } else {
+                alert("Settings saved successfully.");
+            }
         }
 
         async function saveWebService() {
@@ -2460,8 +2481,10 @@ HTML_TEMPLATE = """
             fetchConfig();
         }
 
-        function remoteAction(action) {
+        function remoteAction(action, skipConfirm) {
             if (action === 'clear' && !confirm("Are you sure you want to clear output?")) return;
+            if (action === 'restart' && !skipConfirm && !confirm("Are you sure you want to restart the software?")) return;
+
             var svc = document.getElementById("web-service-select").value;
             fetch('/api/control', {
                 method: 'POST',
@@ -2474,6 +2497,8 @@ HTML_TEMPLATE = """
                 if (window.clusterize) window.clusterize.clear();
                 renderTable();
                 renderGrid();
+            } else if (action === 'restart') {
+                setTimeout(function() { window.location.reload(); }, 4000);
             }
         }
 
@@ -2769,6 +2794,8 @@ def control():
         web_bridge.stop_stream.emit()
     elif cmd == 'clear':
         web_bridge.clear_output.emit()
+    elif cmd == 'restart':
+        web_bridge.restart_app.emit()
     return jsonify({"status": "ok"})
 
 @flask_app.route('/api/stream')
@@ -3952,7 +3979,7 @@ class LogTableModel(QAbstractTableModel):
         return None
 
     def sort(self, column, order=Qt.AscendingOrder):
-        self.layoutAboutToBeChanged.emit()
+        self.beginResetModel()
         reverse = (order == Qt.DescendingOrder)
         
         def parse_addr(addr):
@@ -3976,7 +4003,7 @@ class LogTableModel(QAbstractTableModel):
             key_name = "psn" if column == 3 else "sqc"
             self._filtered_rows.sort(key=lambda r: int(r.get(key_name, 0) or 0), reverse=reverse)
             
-        self.layoutChanged.emit()
+        self.endResetModel()
 
     def append_batch(self, msgs, filter_fn):
         if not msgs:
@@ -4153,6 +4180,7 @@ class MainWindow(QMainWindow):
         web_bridge.start_stream.connect(self.remote_start)
         web_bridge.stop_stream.connect(self.remote_stop)
         web_bridge.clear_output.connect(self.clear_output_no_confirm)
+        web_bridge.restart_app.connect(self.restart_application)
 
         self.setup_ui()
         self.check_autostart_web_server()
@@ -5009,7 +5037,8 @@ class MainWindow(QMainWindow):
     def refresh_time_format(self):
         # 1. Instant update of the virtual model
         if hasattr(self, 'log_model'):
-            self.log_model.layoutChanged.emit()
+            self.log_model.beginResetModel()
+            self.log_model.endResetModel()
 
         # 2. Grid View update
         self.grid_table.setSortingEnabled(False)
@@ -5058,7 +5087,8 @@ class MainWindow(QMainWindow):
 
     def refresh_table_colors(self):
         if hasattr(self, 'log_model'):
-            self.log_model.layoutChanged.emit()
+            self.log_model.beginResetModel()
+            self.log_model.endResetModel()
 
     # --- File Data Persistence ---
     def save_column_widths(self, logicalIndex, oldSize, newSize):
@@ -6389,6 +6419,12 @@ class MainWindow(QMainWindow):
             self.srv_port.setText(self.data["server_port"])
             self.ow_port.setText(self.data["openwebif_port"])
             self.save_config()
+
+    def restart_application(self):
+        self.save_config()
+        import subprocess
+        subprocess.Popen([sys.executable, os.path.abspath(sys.argv[0])])
+        QApplication.quit()
 
     def closeEvent(self, event):
         self.data["window_maximized"] = self.isMaximized()

@@ -11,7 +11,7 @@ Data can be retrieved via Minisatip and OpenWebif streams (the latter being nece
 The software interface allows users to create a database of addresses, PSNs, and PIDs, making it easy to identify stations and determine exactly which station a specific data packet belongs to.
 <br>
 <br>
-An authentication-protected web interface is also included, allowing remote control of the software and real-time decoding monitoring.
+An authentication-protected web server is also included, allowing remote control of the software and real-time decoding monitoring.
 <br>
 <br>
 <img width="900" alt="satrdsmonitor-1" src="https://github.com/user-attachments/assets/0a1a8659-e489-4d91-8dd3-81bd84f5c244" />
